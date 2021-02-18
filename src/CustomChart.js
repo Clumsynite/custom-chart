@@ -14,25 +14,20 @@ export default function CustomChart() {
 
   const [sectionIntervals] = useState({ inter: 10, intra: 19 });
 
-  const flexRow = {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-  };
-  const flexCol = {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  };
-
   const [sectionDetails] = useState({
     GM: { startDate: moment() },
   });
 
-  const [sectionAndCycle] = useState({ section: 1, cycle: 2 });
+  const [sectionAndCycle] = useState({ section: 1, cycle: 3 });
 
   const [mappedSectionData, setMappedSectionData] = useState([]);
+
+  const [stageColors] = useState({
+    GM: `#FFCC00`,
+    TPnGR: `#c6e0b4`,
+    GRnH: `red`,
+    TA: `yellow`,
+  });
 
   const calculateStageWeeks = (startDate) => {
     let stages = {
@@ -72,7 +67,7 @@ export default function CustomChart() {
       let cycleObject = {};
       _.set(cycleObject, "cycle", cycleId + 1);
       for (let sectionId = 0; sectionId < sectionCount; sectionId++) {
-        _.set(cycleObject, "section", String.fromCharCode(sectionId + 1 + 64));
+        _.set(cycleObject, "section", String.fromCharCode(cycleId + 1 + 64));
         let sec1, sec2;
         if (cycleId < 1) {
           sec1 = calculateStageWeeks(
@@ -100,7 +95,6 @@ export default function CustomChart() {
         }
         _.set(cycleObject, "data", [sec1, sec2]);
         array.push(cycleObject);
-        console.log(cycleObject);
       }
     }
     setMappedSectionData([...mappedSectionData, ...array]);
@@ -123,44 +117,34 @@ export default function CustomChart() {
       fontFamily: "sans-serif",
       boxShadow: "0 0 0 1px black",
       padding: 2,
-      fontSize: 14,
+      fontSize: 12,
     };
     let year = moment(_.get(data, "GM.startDate")).year();
     const getBGColor = (index, stages, year) => {
-      let GM = `#FFCC00`;
-      let TPnGR = `#c6e0b4`;
-      let GRnH = `red`;
-      let TA = `yellow`;
+      const { GM, TPnGR, GRnH, TA } = stageColors;
       let backgroundColor;
       _.mapKeys(stages, (dates, stage) => {
         const { startDate, endDate } = dates;
+        let end = moment(endDate).weeks();
+        if (moment(startDate).weeks() > end) {
+          end += 52;
+        }
         switch (stage) {
           case "GM":
-            if (
-              index >= moment(startDate).weeks() &&
-              index <= moment(endDate).weeks()
-            )
+            if (index >= moment(startDate).weeks() && index <= end)
               return (backgroundColor = GM);
             break;
           case "TPnGR":
-            if (
-              index >= moment(startDate).weeks() &&
-              index <= moment(endDate).weeks()
-            )
+            if (index >= moment(startDate).weeks() && index <= end)
               return (backgroundColor = TPnGR);
             break;
           case "GRnH":
-            if (
-              index >= moment(startDate).weeks() &&
-              index <= moment(endDate).weeks()
-            )
+            if (index >= moment(startDate).weeks() && index <= end) {
               return (backgroundColor = GRnH);
+            }
             break;
           case "TA":
-            if (
-              index >= moment(startDate).weeks() &&
-              index <= moment(endDate).weeks()
-            )
+            if (index >= moment(startDate).weeks() && index <= end)
               return (backgroundColor = TA);
             break;
           default:
@@ -192,20 +176,113 @@ export default function CustomChart() {
   };
 
   const RenderWeekBoxes = () => {
-    return mappedSectionData.map((sectionData) => {
-      return _.get(sectionData, "data", []).map((data, index) => {
-        return <WeekBoxes data={data} key={index} boxSize={16} />;
-      });
+    return mappedSectionData.map((sectionData, index) => {
+      return (
+        <div style={{ ...flexRow, padding: "5px 0" }} key={index}>
+          <div style={labelStyle}>{`Section ${sectionData.section}`}</div>
+          <div style={{ ...flexCol }}>
+            {_.get(sectionData, "data", []).map((data, index) => {
+              return <WeekBoxes data={data} key={index} boxSize={14} />;
+            })}
+          </div>
+        </div>
+      );
     });
   };
   return (
-    <div style={{ padding: 16 }}>
-      <div style={{ flexRow }}>
-        <div>{<RenderWeekBoxes />}</div>
-      </div>
-      <div style={{ padding: "6px 0" }}>
-        <WeekBoxes boxSize={16} count />
+    <div style={{ padding: 16, fontFamily: "sans-serif" }}>
+      <div style={{ ...flexRow }}>
+        <div style={{ overflowX: "auto" }}>
+          <div style={{ ...flexRow }}>
+            <div style={{ ...labelStyle, padding: "1px 4px" }}>Weeks</div>
+            <div style={{ flex: 1 }}>
+              <WeekBoxes boxSize={14} count />
+            </div>
+          </div>
+
+          <div>{<RenderWeekBoxes />}</div>
+        </div>
+        <div
+          style={{
+            ...flexCol,
+            padding: "2px 20px",
+            alignItems: "flex-start",
+            border: `1px solid black`,
+            marginLeft: 20,
+          }}
+        >
+          <div style={{ fontSize: 18, fontWeight: "bold", padding: "10px 0" }}>
+            Legend
+          </div>
+          <div style={{ ...flexRow, padding: "10px 0" }}>
+            <div
+              style={{
+                ...legendColorStyle,
+                marginRight: 4,
+                backgroundColor: _.get(stageColors, "GM"),
+              }}
+            ></div>
+            <div>GM</div>
+          </div>
+          <div style={{ ...flexRow, padding: "10px 0" }}>
+            <div
+              style={{
+                ...legendColorStyle,
+                marginRight: 4,
+                backgroundColor: _.get(stageColors, "TPnGR"),
+              }}
+            ></div>
+            <div>TPnGR</div>
+          </div>
+          <div style={{ ...flexRow, padding: "10px 0" }}>
+            <div
+              style={{
+                ...legendColorStyle,
+                marginRight: 4,
+                backgroundColor: _.get(stageColors, "GRnH"),
+              }}
+            ></div>
+            <div>GRnH</div>
+          </div>
+          <div style={{ ...flexRow, padding: "10px 0" }}>
+            <div
+              style={{
+                ...legendColorStyle,
+                marginRight: 4,
+                backgroundColor: _.get(stageColors, "TA"),
+              }}
+            ></div>
+            <div>TA</div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+const flexRow = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+};
+const flexCol = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+};
+const labelStyle = {
+  ...flexCol,
+  border: `1px solid black`,
+  padding: 4,
+  width: 80,
+  fontSize: 14,
+  fontWeight: "bold",
+  alignItems: "center",
+  alignSelf: "stretch",
+};
+const legendColorStyle = {
+  width: 14,
+  height: 14,
+  border: `1px solid black`,
+};
