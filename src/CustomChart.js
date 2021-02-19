@@ -214,7 +214,7 @@ export default function CustomChart() {
       padding: 2,
       fontSize: 12,
     };
-    const getBGColor = (index, stages) => {
+    const getBGColor = (index, stages, bg) => {
       const { GM, TPnGR, GRnH, TA } = stageColors;
       let backgroundColor = `#fff`;
       _.mapKeys(stages, (dates, stage) => {
@@ -253,7 +253,6 @@ export default function CustomChart() {
             if (index >= start && index <= end) return (backgroundColor = TA);
             break;
           default:
-            backgroundColor = `#fff`;
             break;
         }
       });
@@ -262,12 +261,16 @@ export default function CustomChart() {
     return (
       <div style={{ ...flexRow }}>
         {_.map(boxArray, (week, index) => {
-          let backgroundColor = "#d9e1f2";
+          let backgroundColor = count ? "#d9e1f2" : "#fff";
           if (data) {
             for (let stage of data) {
-              backgroundColor = getBGColor(index + 1, stage);
-              if (backgroundColor !== "#d9e1f2" || backgroundColor !== "#fff") {
-                break;
+              let bg = backgroundColor;
+              backgroundColor = getBGColor(index + 1, stage, bg);
+              if (
+                (bg !== "#fff" || bg !== "#d9e1f2") &&
+                (backgroundColor === "#fff" || backgroundColor === "#d9e1f2")
+              ) {
+                backgroundColor = bg;
               }
             }
           }
