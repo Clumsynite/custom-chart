@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
-import _, { intersection } from "lodash";
-// import {}
+import _ from "lodash";
+import { Select } from "antd";
+import "antd/dist/antd.css";
+const { Option } = Select;
 
 export default function CustomChart() {
   const [stageDuration] = useState({
@@ -28,6 +30,8 @@ export default function CustomChart() {
     GRnH: `red`,
     TA: `yellow`,
   });
+
+  const [currentYear, setCurrentYear] = useState(moment().year());
 
   const calculateStageWeeks = (startDate) => {
     let stages = {
@@ -119,33 +123,44 @@ export default function CustomChart() {
       padding: 2,
       fontSize: 12,
     };
-    let year = moment(_.get(data, "GM.startDate")).year();
-    const getBGColor = (index, stages, year) => {
+    const getBGColor = (index, stages) => {
       const { GM, TPnGR, GRnH, TA } = stageColors;
-      let backgroundColor;
+      let backgroundColor = `#fff`;
       _.mapKeys(stages, (dates, stage) => {
         const { startDate, endDate } = dates;
+        let start = moment(startDate).weeks();
         let end = moment(endDate).weeks();
-        if (moment(startDate).weeks() > end) {
+        if (moment(startDate).year() > currentYear) {
+          start += 52;
+        } else if (
+          moment(startDate).year() < currentYear &&
+          moment(endDate).year() === currentYear
+        ) {
+          start -= 52;
+        } else if (
+          moment(startDate).year() == currentYear &&
+          moment(endDate).year() > currentYear
+        ) {
           end += 52;
+        } else if (moment(startDate).year() < currentYear) {
+          end -= 52;
         }
+
         switch (stage) {
           case "GM":
-            if (index >= moment(startDate).weeks() && index <= end)
-              return (backgroundColor = GM);
+            if (index >= start && index <= end) return (backgroundColor = GM);
             break;
           case "TPnGR":
-            if (index >= moment(startDate).weeks() && index <= end)
+            if (index >= start && index <= end)
               return (backgroundColor = TPnGR);
             break;
           case "GRnH":
-            if (index >= moment(startDate).weeks() && index <= end) {
+            if (index >= start && index <= end) {
               return (backgroundColor = GRnH);
             }
             break;
           case "TA":
-            if (index >= moment(startDate).weeks() && index <= end)
-              return (backgroundColor = TA);
+            if (index >= start && index <= end) return (backgroundColor = TA);
             break;
           default:
             backgroundColor = `#fff`;
@@ -158,7 +173,7 @@ export default function CustomChart() {
       <div style={{ ...flexRow }}>
         {_.map(boxArray, (week, index) => {
           let backgroundColor;
-          if (data) backgroundColor = getBGColor(index + 1, data, year);
+          if (data) backgroundColor = getBGColor(index + 1, data);
           return (
             <div
               style={{
@@ -182,21 +197,36 @@ export default function CustomChart() {
           <div style={labelStyle}>{`Section ${sectionData.section}`}</div>
           <div style={{ ...flexCol }}>
             {_.get(sectionData, "data", []).map((data, index) => {
-              return <WeekBoxes data={data} key={index} boxSize={14} />;
+              return <WeekBoxes data={data} key={index} boxSize={18} />;
             })}
           </div>
         </div>
       );
     });
   };
+
   return (
     <div style={{ padding: 16, fontFamily: "sans-serif" }}>
       <div style={{ ...flexRow }}>
         <div style={{ overflowX: "auto" }}>
+          <div style={{ padding: "10px 0" }}>
+            <Select
+              defaultValue={moment().year()}
+              style={{ width: 120 }}
+              onChange={setCurrentYear}
+            >
+              <Option value={moment().year()}>Year 1</Option>
+              <Option value={moment().add(1, "y").year()}>Year 2</Option>
+              <Option value={moment().add(2, "y").year()}>Year 3</Option>
+              <Option value={moment().add(3, "y").year()}>Year 4</Option>
+              <Option value={moment().add(4, "y").year()}>Year 5</Option>
+            </Select>
+          </div>
+
           <div style={{ ...flexRow }}>
             <div style={{ ...labelStyle, padding: "1px 4px" }}>Weeks</div>
             <div style={{ flex: 1 }}>
-              <WeekBoxes boxSize={14} count />
+              <WeekBoxes boxSize={18} count />
             </div>
           </div>
 
