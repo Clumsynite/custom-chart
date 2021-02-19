@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import moment from "moment";
 import _ from "lodash";
 import { Select, Button, Input } from "antd";
-import "antd/lib/select/style/css";
-import "antd/lib/input/style/css";
+import "antd/dist/antd.css";
 import { ZoomInOutlined, ZoomOutOutlined } from "@ant-design/icons";
 const { Option } = Select;
 
