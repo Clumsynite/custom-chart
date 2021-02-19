@@ -82,14 +82,14 @@ export default function CustomChart() {
           );
           sec1 = [
             init,
-            // calculateStageWeeks(
-            //   moment(_.get(init, "TA.endDate")).add(
-            //     _.get(stageDuration, "total") -
-            //       _.get(stageDuration, "GM") * 2 +
-            //       1,
-            //     "w"
-            //   )
-            // ),
+            calculateStageWeeks(
+              moment(_.get(init, "TA.endDate")).add(
+                _.get(stageDuration, "total") -
+                  _.get(stageDuration, "GM") * 2 +
+                  1,
+                "w"
+              )
+            ),
           ];
           sec2 = [
             calculateStageWeeks(
@@ -266,6 +266,9 @@ export default function CustomChart() {
           if (data) {
             for (let stage of data) {
               backgroundColor = getBGColor(index + 1, stage);
+              if (backgroundColor !== "#d9e1f2" || backgroundColor !== "#fff") {
+                break;
+              }
             }
           }
           return (
@@ -301,58 +304,61 @@ export default function CustomChart() {
 
   return (
     <div style={{ padding: 16, fontFamily: "sans-serif" }}>
+      <div
+        style={{
+          padding: "10px 0",
+          ...flexRow,
+          justifyContent: "space-between",
+        }}
+      >
+        <Select
+          defaultValue={moment().year()}
+          style={{ width: 120 }}
+          onChange={setCurrentYear}
+        >
+          <Option value={moment().year()}>Year 1</Option>
+          <Option value={moment().add(1, "y").year()}>Year 2</Option>
+          <Option value={moment().add(2, "y").year()}>Year 3</Option>
+          <Option value={moment().add(3, "y").year()}>Year 4</Option>
+          <Option value={moment().add(4, "y").year()}>Year 5</Option>
+        </Select>
+        <div
+          style={{
+            ...flexRow,
+            justifyContent: "space-around",
+            padding: "10px 0",
+            minWidth: 120,
+          }}
+        >
+          <Tooltip title="Zoom Out">
+            <Button
+              size="small"
+              icon={<ZoomOutOutlined />}
+              onClick={() => setSize(size - 1)}
+            />
+          </Tooltip>
+          <div>Size: {size}</div>
+          <Tooltip title="Zoom In">
+            <Button
+              size="small"
+              icon={<ZoomInOutlined />}
+              onClick={() => setSize(size + 1)}
+            />
+          </Tooltip>
+        </div>
+      </div>
       <div style={{ ...flexRow, alignItems: "flex-start" }}>
-        <div style={{ overflowX: "auto", maxHeight: 400, overflowY: "auto" }}>
-          <div style={{ padding: "10px 0" }}>
-            <Select
-              defaultValue={moment().year()}
-              style={{ width: 120 }}
-              onChange={setCurrentYear}
-            >
-              <Option value={moment().year()}>Year 1</Option>
-              <Option value={moment().add(1, "y").year()}>Year 2</Option>
-              <Option value={moment().add(2, "y").year()}>Year 3</Option>
-              <Option value={moment().add(3, "y").year()}>Year 4</Option>
-              <Option value={moment().add(4, "y").year()}>Year 5</Option>
-            </Select>
-          </div>
-
+        <div style={{ overflowX: "auto", maxHeight: 320, overflowY: "auto" }}>
           <div style={{ ...flexRow }}>
             <div style={labelStyle}>Weeks</div>
             <div style={{ flex: 1 }}>
               <WeekBoxes count />
             </div>
           </div>
-
           <div>{<RenderWeekBoxes />}</div>
         </div>
         <div>
-          <div
-            style={{
-              ...flexRow,
-              justifyContent: "space-between",
-              padding: "10px 0",
-            }}
-          >
-            <Tooltip title="Zoom Out">
-              <Button
-                size="small"
-                icon={<ZoomOutOutlined />}
-                onClick={() => setSize(size - 1)}
-              />
-            </Tooltip>
-            <div>Size</div>
-            <Tooltip title="Zoom In">
-              <Button
-                size="small"
-                icon={<ZoomInOutlined />}
-                onClick={() => setSize(size + 1)}
-              />
-            </Tooltip>
-          </div>
-          <div style={{ padding: "20px 0" }}>
-            <Legend />
-          </div>
+          <Legend />
         </div>
       </div>
     </div>
