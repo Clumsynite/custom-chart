@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import _ from "lodash";
-import { Select, Button } from "antd";
+import { Select, Button, Input } from "antd";
 import "antd/lib/select/style/css";
+import "antd/lib/input/style/css";
 import { ZoomInOutlined, ZoomOutOutlined } from "@ant-design/icons";
 const { Option } = Select;
 
@@ -32,7 +33,7 @@ export default function CustomChart() {
     TA: `yellow`,
   });
 
-  const [numberOfYears] = useState(5);
+  const [numberOfYears, setNumberOfYears] = useState(5);
 
   const [currentYear, setCurrentYear] = useState(moment().year());
 
@@ -144,13 +145,16 @@ export default function CustomChart() {
         array.push(cycleObject);
       }
     }
-    setMappedSectionData([...mappedSectionData, ...array]);
+    setMappedSectionData([...array]);
   };
 
   useEffect(() => {
-    mapSectionDetails();
-    // eslint-disable-next-line
-  }, []);
+    if (numberOfYears > 0) {
+      mapSectionDetails();
+    } else {
+      setMappedSectionData([]);
+    }
+  }, [numberOfYears]);
 
   const Legend = () => {
     return (
@@ -328,8 +332,25 @@ export default function CustomChart() {
     });
   };
 
+  const YearInput = () => {
+    return (
+      <Input
+        type="number"
+        style={{ width: 120 }}
+        placeholder="Years"
+        onChange={(e) => {
+          setNumberOfYears(e.target.value);
+        }}
+        value={numberOfYears}
+        maxLength={1}
+        autoFocus
+      />
+    );
+  };
+
   return (
     <div style={{ padding: 16, fontFamily: "sans-serif" }}>
+      <YearInput />
       <div
         style={{
           padding: "10px 0",
@@ -341,6 +362,7 @@ export default function CustomChart() {
           defaultValue={moment().year()}
           style={{ width: 120 }}
           onChange={setCurrentYear}
+          value={currentYear}
         >
           {_.times(numberOfYears, Number).map((year) => (
             <Option value={moment().add(year, "y").year()} key={year}>
@@ -377,7 +399,15 @@ export default function CustomChart() {
               <WeekBoxes count />
             </div>
           </div>
-          <div>{<RenderWeekBoxes />}</div>
+          <div>
+            {mappedSectionData.length > 0 ? (
+              <RenderWeekBoxes />
+            ) : (
+              <div style={{ ...flexCol, paddingTop: 30 }}>
+                No Data to Load (Increase Number of Years to render)
+              </div>
+            )}
+          </div>
         </div>
         <div>
           <Legend />
