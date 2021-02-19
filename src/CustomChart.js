@@ -154,7 +154,10 @@ export default function CustomChart() {
     } else {
       setMappedSectionData([]);
     }
+    // eslint-disable-next-line
   }, [numberOfYears]);
+
+  const [numberOfWeeks, setNumberOfWeeks] = useState(moment().weeksInYear());
 
   const Legend = () => {
     return (
@@ -228,7 +231,6 @@ export default function CustomChart() {
 
   const WeekBoxes = ({ data, count }) => {
     const border = `1px solid #000`;
-    const boxArray = _.times(52, Number);
     const boxStyle = {
       width: size,
       height: size,
@@ -287,7 +289,7 @@ export default function CustomChart() {
     };
     return (
       <div style={{ ...flexRow }}>
-        {_.map(boxArray, (week, index) => {
+        {_.times(numberOfWeeks, Number).map((week, index) => {
           let backgroundColor = count ? "#d9e1f2" : "#fff";
           if (data) {
             for (let stage of data) {
@@ -348,6 +350,51 @@ export default function CustomChart() {
     );
   };
 
+  const YearSelect = () => {
+    return (
+      <Select
+        defaultValue={moment().year()}
+        style={{ width: 120 }}
+        onChange={(value) => {
+          setNumberOfWeeks(moment(new Date(`1-1-${value}`)).weeksInYear());
+          setCurrentYear(value);
+        }}
+        value={currentYear}
+      >
+        {_.times(numberOfYears, Number).map((year) => (
+          <Option value={moment().add(year, "y").year()} key={year}>
+            Year {year + 1}
+          </Option>
+        ))}
+      </Select>
+    );
+  };
+
+  const ZoomControl = () => {
+    return (
+      <div
+        style={{
+          ...flexRow,
+          justifyContent: "space-around",
+          padding: "10px 0",
+          minWidth: 120,
+        }}
+      >
+        <Button
+          size="small"
+          icon={<ZoomOutOutlined />}
+          onClick={() => setSize(size - 1)}
+        />
+        <div>Size: {size}</div>
+        <Button
+          size="small"
+          icon={<ZoomInOutlined />}
+          onClick={() => setSize(size + 1)}
+        />
+      </div>
+    );
+  };
+
   return (
     <div style={{ padding: 16, fontFamily: "sans-serif" }}>
       <YearInput />
@@ -358,38 +405,8 @@ export default function CustomChart() {
           justifyContent: "space-between",
         }}
       >
-        <Select
-          defaultValue={moment().year()}
-          style={{ width: 120 }}
-          onChange={setCurrentYear}
-          value={currentYear}
-        >
-          {_.times(numberOfYears, Number).map((year) => (
-            <Option value={moment().add(year, "y").year()} key={year}>
-              Year {year + 1}
-            </Option>
-          ))}
-        </Select>
-        <div
-          style={{
-            ...flexRow,
-            justifyContent: "space-around",
-            padding: "10px 0",
-            minWidth: 120,
-          }}
-        >
-          <Button
-            size="small"
-            icon={<ZoomOutOutlined />}
-            onClick={() => setSize(size - 1)}
-          />
-          <div>Size: {size}</div>
-          <Button
-            size="small"
-            icon={<ZoomInOutlined />}
-            onClick={() => setSize(size + 1)}
-          />
-        </div>
+        <YearSelect />
+        <ZoomControl />
       </div>
       <div style={{ ...flexRow, alignItems: "flex-start" }}>
         <div style={{ overflowX: "auto", maxHeight: 320, overflowY: "auto" }}>
