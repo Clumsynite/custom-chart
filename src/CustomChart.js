@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import _ from "lodash";
-import { Select, Button, Tooltip } from "antd";
-import "antd/dist/antd.css";
+import { Select, Button } from "antd";
+import "antd/lib/select/style/css";
 import { ZoomInOutlined, ZoomOutOutlined } from "@ant-design/icons";
 const { Option } = Select;
 
@@ -32,9 +32,11 @@ export default function CustomChart() {
     TA: `yellow`,
   });
 
+  const [numberOfYears] = useState(5);
+
   const [currentYear, setCurrentYear] = useState(moment().year());
 
-  const [size, setSize] = useState(18);
+  const [size, setSize] = useState(17);
 
   const calculateStageWeeks = (startDate) => {
     let stages = {
@@ -75,47 +77,68 @@ export default function CustomChart() {
       _.set(cycleObject, "cycle", cycleId + 1);
       for (let sectionId = 0; sectionId < sectionCount; sectionId++) {
         _.set(cycleObject, "section", String.fromCharCode(cycleId + 1 + 64));
-        let sec1, sec2;
+        let sec1 = [],
+          sec2 = [],
+          finalYear = moment().add(numberOfYears, "y").year();
         if (cycleId < 1) {
-          let init = calculateStageWeeks(
-            moment(_.get(sectionDetails, "GM.startDate"))
+          sec1.push(
+            calculateStageWeeks(moment(_.get(sectionDetails, "GM.startDate")))
           );
-          sec1 = [
-            init,
-            calculateStageWeeks(
-              moment(_.get(init, "TA.endDate")).add(
-                _.get(stageDuration, "total") -
-                  _.get(stageDuration, "GM") * 2 +
-                  1,
-                "w"
-              )
-            ),
-          ];
-          sec2 = [
+          sec2.push(
             calculateStageWeeks(
               moment(_.get(sectionDetails, "GM.startDate")).add(
                 _.get(sectionIntervals, "intra"),
                 "w"
               )
-            ),
-          ];
+            )
+          );
+          for (let i = 0; i < numberOfYears * 3; i++) {
+            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(2, "w");
+            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(2, "w");
+            let firstRow = calculateStageWeeks(init1);
+            let secRow = calculateStageWeeks(init2);
+            if (
+              moment(firstRow.TA.endDate).year() < finalYear &&
+              moment(secRow.TA.endDate).year() < finalYear
+            ) {
+              sec1.push(firstRow);
+              sec2.push(secRow);
+            } else {
+              break;
+            }
+          }
         } else {
-          sec1 = [
+          sec1.push(
             calculateStageWeeks(
               moment(_.get(sectionDetails, "GM.startDate")).add(
                 cycleId * _.get(sectionIntervals, "inter"),
                 "w"
               )
-            ),
-          ];
-          sec2 = [
+            )
+          );
+          sec2.push(
             calculateStageWeeks(
               moment(_.get(sec1[0], "GM.startDate")).add(
                 _.get(sectionIntervals, "intra"),
                 "w"
               )
-            ),
-          ];
+            )
+          );
+          for (let i = 0; i < numberOfYears * 3; i++) {
+            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(2, "w");
+            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(2, "w");
+            let firstRow = calculateStageWeeks(init1);
+            let secRow = calculateStageWeeks(init2);
+            if (
+              moment(firstRow.TA.endDate).year() < finalYear &&
+              moment(secRow.TA.endDate).year() < finalYear
+            ) {
+              sec1.push(firstRow);
+              sec2.push(secRow);
+            } else {
+              break;
+            }
+          }
         }
         _.set(cycleObject, "data", [sec1, sec2]);
         array.push(cycleObject);
@@ -319,11 +342,11 @@ export default function CustomChart() {
           style={{ width: 120 }}
           onChange={setCurrentYear}
         >
-          <Option value={moment().year()}>Year 1</Option>
-          <Option value={moment().add(1, "y").year()}>Year 2</Option>
-          <Option value={moment().add(2, "y").year()}>Year 3</Option>
-          <Option value={moment().add(3, "y").year()}>Year 4</Option>
-          <Option value={moment().add(4, "y").year()}>Year 5</Option>
+          {_.times(numberOfYears, Number).map((year) => (
+            <Option value={moment().add(year, "y").year()} key={year}>
+              Year {year + 1}
+            </Option>
+          ))}
         </Select>
         <div
           style={{
@@ -333,21 +356,17 @@ export default function CustomChart() {
             minWidth: 120,
           }}
         >
-          <Tooltip title="Zoom Out">
-            <Button
-              size="small"
-              icon={<ZoomOutOutlined />}
-              onClick={() => setSize(size - 1)}
-            />
-          </Tooltip>
+          <Button
+            size="small"
+            icon={<ZoomOutOutlined />}
+            onClick={() => setSize(size - 1)}
+          />
           <div>Size: {size}</div>
-          <Tooltip title="Zoom In">
-            <Button
-              size="small"
-              icon={<ZoomInOutlined />}
-              onClick={() => setSize(size + 1)}
-            />
-          </Tooltip>
+          <Button
+            size="small"
+            icon={<ZoomInOutlined />}
+            onClick={() => setSize(size + 1)}
+          />
         </div>
       </div>
       <div style={{ ...flexRow, alignItems: "flex-start" }}>
