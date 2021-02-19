@@ -106,6 +106,7 @@ export default function CustomChart() {
 
   useEffect(() => {
     mapSectionDetails();
+    // eslint-disable-next-line
   }, []);
 
   const WeekBoxes = ({ boxSize, data, count }) => {
@@ -138,7 +139,7 @@ export default function CustomChart() {
         ) {
           start -= 52;
         } else if (
-          moment(startDate).year() == currentYear &&
+          moment(startDate).year() === currentYear &&
           moment(endDate).year() > currentYear
         ) {
           end += 52;
