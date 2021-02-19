@@ -9,9 +9,9 @@ export default function CustomChart() {
   const [stageDuration] = useState({
     GM: 3,
     TPnGR: 7,
-    GRnH: 9,
+    GRnH: 10,
     TA: 2,
-    TotalDuration: 21,
+    TotalDuration: 22,
   });
 
   const [sectionIntervals] = useState({ inter: 10, intra: 19 });
@@ -173,7 +173,7 @@ export default function CustomChart() {
     return (
       <div style={{ ...flexRow }}>
         {_.map(boxArray, (week, index) => {
-          let backgroundColor;
+          let backgroundColor = "#d9e1f2";
           if (data) backgroundColor = getBGColor(index + 1, data);
           return (
             <div
@@ -198,7 +198,7 @@ export default function CustomChart() {
           <div style={labelStyle}>{`Section ${sectionData.section}`}</div>
           <div style={{ ...flexCol }}>
             {_.get(sectionData, "data", []).map((data, index) => {
-              return <WeekBoxes data={data} key={index} boxSize={18} />;
+              return <WeekBoxes data={data} key={index} boxSize={20} />;
             })}
           </div>
         </div>
@@ -225,9 +225,9 @@ export default function CustomChart() {
           </div>
 
           <div style={{ ...flexRow }}>
-            <div style={{ ...labelStyle, padding: "1px 4px" }}>Weeks</div>
+            <div style={{ ...labelStyle, padding: "1px 6px" }}>Weeks</div>
             <div style={{ flex: 1 }}>
-              <WeekBoxes boxSize={18} count />
+              <WeekBoxes boxSize={20} count />
             </div>
           </div>
 
@@ -236,16 +236,19 @@ export default function CustomChart() {
         <div
           style={{
             ...flexCol,
-            padding: "2px 20px",
+            padding: "1px 10px",
             alignItems: "flex-start",
             border: `1px solid black`,
-            marginLeft: 20,
+            marginLeft: 10,
           }}
         >
           <div style={{ fontSize: 18, fontWeight: "bold", padding: "10px 0" }}>
             Legend
           </div>
-          <div style={{ ...flexRow, padding: "10px 0" }}>
+          <div
+            style={{ ...flexRow, padding: "6px 0" }}
+            title={`${_.get(stageDuration, "GM")} Weeks`}
+          >
             <div
               style={{
                 ...legendColorStyle,
@@ -255,7 +258,10 @@ export default function CustomChart() {
             ></div>
             <div>GM</div>
           </div>
-          <div style={{ ...flexRow, padding: "10px 0" }}>
+          <div
+            style={{ ...flexRow, padding: "6px 0" }}
+            title={`${_.get(stageDuration, "TPnGR")} Weeks`}
+          >
             <div
               style={{
                 ...legendColorStyle,
@@ -265,7 +271,10 @@ export default function CustomChart() {
             ></div>
             <div>TPnGR</div>
           </div>
-          <div style={{ ...flexRow, padding: "10px 0" }}>
+          <div
+            style={{ ...flexRow, padding: "6px 0" }}
+            title={`${_.get(stageDuration, "GRnH")} Weeks`}
+          >
             <div
               style={{
                 ...legendColorStyle,
@@ -275,7 +284,10 @@ export default function CustomChart() {
             ></div>
             <div>GRnH</div>
           </div>
-          <div style={{ ...flexRow, padding: "10px 0" }}>
+          <div
+            style={{ ...flexRow, padding: "6px 0" }}
+            title={`${_.get(stageDuration, "TA")} Weeks`}
+          >
             <div
               style={{
                 ...legendColorStyle,
@@ -305,8 +317,7 @@ const flexCol = {
 const labelStyle = {
   ...flexCol,
   border: `1px solid black`,
-  padding: 4,
-  width: 80,
+  padding: 2,
   fontSize: 14,
   fontWeight: "bold",
   alignItems: "center",
