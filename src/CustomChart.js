@@ -169,11 +169,11 @@ export default function CustomChart() {
           marginLeft: 10,
         }}
       >
-        <div style={{ fontSize: 18, fontWeight: "bold", padding: "10px 0" }}>
+        <div style={{ fontSize: 18, fontWeight: "bold", padding: "6px 0" }}>
           Legend
         </div>
         <div
-          style={{ ...flexRow, padding: "6px 0" }}
+          style={{ ...flexRow, padding: "2px 0" }}
           title={`${_.get(stageDuration, "GM")} Weeks`}
         >
           <div
@@ -186,7 +186,7 @@ export default function CustomChart() {
           <div>GM</div>
         </div>
         <div
-          style={{ ...flexRow, padding: "6px 0" }}
+          style={{ ...flexRow, padding: "2px 0" }}
           title={`${_.get(stageDuration, "TPnGR")} Weeks`}
         >
           <div
@@ -199,7 +199,7 @@ export default function CustomChart() {
           <div>TPnGR</div>
         </div>
         <div
-          style={{ ...flexRow, padding: "6px 0" }}
+          style={{ ...flexRow, padding: "2px 0" }}
           title={`${_.get(stageDuration, "GRnH")} Weeks`}
         >
           <div
@@ -212,7 +212,7 @@ export default function CustomChart() {
           <div>GRnH</div>
         </div>
         <div
-          style={{ ...flexRow, padding: "6px 0" }}
+          style={{ ...flexRow, padding: "2px 0" }}
           title={`${_.get(stageDuration, "TA")} Weeks`}
         >
           <div
@@ -224,6 +224,67 @@ export default function CustomChart() {
           ></div>
           <div>TA</div>
         </div>
+      </div>
+    );
+  };
+
+  const YearInput = () => {
+    return (
+      <Input
+        type="number"
+        style={{ width: 120 }}
+        placeholder="Years"
+        onChange={(e) => {
+          setNumberOfYears(e.target.value);
+        }}
+        value={numberOfYears}
+        maxLength={1}
+        autoFocus
+      />
+    );
+  };
+
+  const YearSelect = () => {
+    return (
+      <Select
+        defaultValue={moment().year()}
+        style={{ width: 120 }}
+        onChange={(value) => {
+          setNumberOfWeeks(moment(new Date(`1-1-${value}`)).weeksInYear());
+          setCurrentYear(value);
+        }}
+        value={currentYear}
+      >
+        {_.times(numberOfYears, Number).map((year) => (
+          <Option value={moment().add(year, "y").year()} key={year}>
+            Year {year + 1}
+          </Option>
+        ))}
+      </Select>
+    );
+  };
+
+  const ZoomControl = () => {
+    return (
+      <div
+        style={{
+          ...flexRow,
+          justifyContent: "space-around",
+          padding: "10px 0",
+          minWidth: 120,
+        }}
+      >
+        <Button
+          size="small"
+          icon={<ZoomOutOutlined />}
+          onClick={() => setSize(size - 1)}
+        />
+        <div>Size: {size}</div>
+        <Button
+          size="small"
+          icon={<ZoomInOutlined />}
+          onClick={() => setSize(size + 1)}
+        />
       </div>
     );
   };
@@ -333,67 +394,6 @@ export default function CustomChart() {
     });
   };
 
-  const YearInput = () => {
-    return (
-      <Input
-        type="number"
-        style={{ width: 120 }}
-        placeholder="Years"
-        onChange={(e) => {
-          setNumberOfYears(e.target.value);
-        }}
-        value={numberOfYears}
-        maxLength={1}
-        autoFocus
-      />
-    );
-  };
-
-  const YearSelect = () => {
-    return (
-      <Select
-        defaultValue={moment().year()}
-        style={{ width: 120 }}
-        onChange={(value) => {
-          setNumberOfWeeks(moment(new Date(`1-1-${value}`)).weeksInYear());
-          setCurrentYear(value);
-        }}
-        value={currentYear}
-      >
-        {_.times(numberOfYears, Number).map((year) => (
-          <Option value={moment().add(year, "y").year()} key={year}>
-            Year {year + 1}
-          </Option>
-        ))}
-      </Select>
-    );
-  };
-
-  const ZoomControl = () => {
-    return (
-      <div
-        style={{
-          ...flexRow,
-          justifyContent: "space-around",
-          padding: "10px 0",
-          minWidth: 120,
-        }}
-      >
-        <Button
-          size="small"
-          icon={<ZoomOutOutlined />}
-          onClick={() => setSize(size - 1)}
-        />
-        <div>Size: {size}</div>
-        <Button
-          size="small"
-          icon={<ZoomInOutlined />}
-          onClick={() => setSize(size + 1)}
-        />
-      </div>
-    );
-  };
-
   return (
     <div style={{ padding: 16, fontFamily: "sans-serif" }}>
       <YearInput />
@@ -408,9 +408,18 @@ export default function CustomChart() {
         <ZoomControl />
       </div>
       <div style={{ ...flexRow, alignItems: "flex-start" }}>
-        <div style={{ overflowX: "auto", maxHeight: 320, overflowY: "auto" }}>
+        <div
+          style={{
+            overflowX: "auto",
+            maxHeight: 320,
+            overflowY: "auto",
+            padding: "5px 0",
+          }}
+        >
           <div style={{ ...flexRow }}>
-            <div style={labelStyle}>Weeks</div>
+            <div style={{ ...labelStyle, padding: "0px 0", fontSize: 12 }}>
+              Weeks
+            </div>
             <div style={{ flex: 1 }}>
               <WeekBoxes count />
             </div>
@@ -447,12 +456,12 @@ const flexCol = {
 const labelStyle = {
   ...flexCol,
   border: `1px solid black`,
-  padding: 2,
   fontSize: 14,
   minWidth: 80,
   fontWeight: "bold",
   alignItems: "center",
   alignSelf: "stretch",
+  padding: "6px 0",
 };
 const legendColorStyle = {
   width: 14,
