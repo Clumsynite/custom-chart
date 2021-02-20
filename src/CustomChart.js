@@ -18,7 +18,7 @@ export default function CustomChart() {
   const [sectionIntervals] = useState({ inter: 10, intra: 19 });
 
   const [sectionDetails] = useState({
-    GM: { startDate: moment() },
+    GM: { startDate: moment(new Date(`1-1-${moment().year()}`)) },
   });
 
   const [sectionAndCycle] = useState({ section: 1, cycle: 3 });
