@@ -38,7 +38,7 @@ export default function CustomChart() {
 
   const [sectionIntervals, setSectionIntervals] = useState({
     inter: 5,
-    intra: 18,
+    intra: 10,
   });
 
   const calculateStageWeeks = (startDate) => {
@@ -322,7 +322,6 @@ export default function CustomChart() {
 
         if (moment(startDate).year() > currentYear) {
           start += 52;
-          end += 52;
         } else if (
           moment(startDate).year() < currentYear &&
           moment(endDate).year() === currentYear
@@ -337,23 +336,9 @@ export default function CustomChart() {
           } else {
             end -= 52;
           }
-        } else if (
-          moment(startDate).year() < currentYear &&
-          moment(endDate).year() < currentYear
-        ) {
-          start -= 52;
+        } else if (moment(startDate).year() < currentYear) {
           end -= 52;
-        } else if (start > end) {
-          end += 52;
-        } else if (
-          start < end &&
-          moment(startDate).year() !== moment(endDate).year()
-        ) {
-          if (moment(startDate).year() === currentYear) {
-            end += 52;
-          } else if (moment(endDate).year() === currentYear) {
-            start -= 52;
-          }
+          start -= 52
         }
 
         switch (stage) {
@@ -399,32 +384,9 @@ export default function CustomChart() {
               key={index}
               onClick={() => {
                 // setSectionIntervals({ inter: 5, intra: 10 });
-                // setSectionIntervals({ inter: 5, intra: 18 });
+                setSectionIntervals({ inter: 5, intra: 18 });
                 // setSectionIntervals({ inter: 20, intra: 29 });
-                for (let test of data) {
-                  console.log("GM", moment(test.GM.startDate).year());
-                  console.log(
-                    "GM",
-                    moment(test.GM.startDate).weeks(),
-                    moment(test.GM.endDate).weeks()
-                  );
-                  console.log(
-                    "TPnGR",
-                    moment(test.TPnGR.startDate).weeks(),
-                    moment(test.TPnGR.endDate).weeks()
-                  );
-                  console.log(
-                    "GRnH",
-                    moment(test.GRnH.startDate).weeks(),
-                    moment(test.GRnH.endDate).weeks()
-                  );
-                  console.log(
-                    "TA",
-                    moment(test.TA.startDate).weeks(),
-                    moment(test.TA.endDate).weeks()
-                  );
-                  console.log("TA", moment(test.TA.endDate).year());
-                }
+                // setSectionIntervals({ inter: 10, intra: 19 });
               }}
             >
               {count && week + 1}
