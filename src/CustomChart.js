@@ -15,8 +15,6 @@ export default function CustomChart() {
     total: 22,
   });
 
-  const [sectionIntervals] = useState({ inter: 10, intra: 19 });
-
   const [sectionDetails] = useState({
     GM: { startDate: moment(new Date(`1-1-${moment().year()}`)) },
   });
@@ -36,7 +34,12 @@ export default function CustomChart() {
 
   const [currentYear, setCurrentYear] = useState(moment().year());
 
-  const [size, setSize] = useState(17);
+  const [size, setSize] = useState(22);
+
+  const [sectionIntervals, setSectionIntervals] = useState({
+    inter: 5,
+    intra: 18,
+  });
 
   const calculateStageWeeks = (startDate) => {
     let stages = {
@@ -69,6 +72,7 @@ export default function CustomChart() {
   };
 
   const mapSectionDetails = () => {
+    setMappedSectionData([]);
     let cycleCount = sectionAndCycle.cycle;
     let sectionCount = sectionAndCycle.section;
     let array = [];
@@ -148,28 +152,31 @@ export default function CustomChart() {
   };
 
   useEffect(() => {
+    setMappedSectionData([]);
     if (numberOfYears > 0) {
       mapSectionDetails();
-    } else {
-      setMappedSectionData([]);
     }
     // eslint-disable-next-line
-  }, [numberOfYears]);
+  }, [numberOfYears, sectionIntervals]);
 
-  const [numberOfWeeks, setNumberOfWeeks] = useState(moment().weeksInYear());
+  useEffect(() => {
+    mapSectionDetails();
+    //eslint-disable-next-line
+  }, []);
 
   const Legend = () => {
     return (
       <div
         style={{
           ...flexCol,
-          padding: "1px 10px",
+          padding: 10,
           alignItems: "flex-start",
           border: `1px solid black`,
           marginLeft: 10,
+          flex: 1,
         }}
       >
-        <div style={{ fontSize: 18, fontWeight: "bold", padding: "6px 0" }}>
+        <div style={{ fontSize: 18, fontWeight: "bold", padding: 8 }}>
           Legend
         </div>
         <div
@@ -196,7 +203,7 @@ export default function CustomChart() {
               backgroundColor: _.get(stageColors, "TPnGR"),
             }}
           ></div>
-          <div>TPnGR</div>
+          <div>TP & GR</div>
         </div>
         <div
           style={{ ...flexRow, padding: "2px 0" }}
@@ -209,7 +216,7 @@ export default function CustomChart() {
               backgroundColor: _.get(stageColors, "GRnH"),
             }}
           ></div>
-          <div>GRnH</div>
+          <div>GR & H</div>
         </div>
         <div
           style={{ ...flexRow, padding: "2px 0" }}
@@ -227,6 +234,8 @@ export default function CustomChart() {
       </div>
     );
   };
+
+  const [numberOfWeeks, setNumberOfWeeks] = useState(moment().weeksInYear());
 
   const YearInput = () => {
     return (
@@ -303,7 +312,7 @@ export default function CustomChart() {
       padding: 2,
       fontSize: 12,
     };
-    const getBGColor = (index, stages, bg) => {
+    const getBGColor = (index, stages) => {
       const { GM, TPnGR, GRnH, TA } = stageColors;
       let backgroundColor = `#fff`;
       _.mapKeys(stages, (dates, stage) => {
@@ -321,10 +330,18 @@ export default function CustomChart() {
           moment(startDate).year() === currentYear &&
           moment(endDate).year() > currentYear
         ) {
-          end += 52;
+          if (end < start) {
+            end += 52;
+          } else {
+            end -= 52;
+          }
         } else if (moment(startDate).year() < currentYear) {
           end -= 52;
+        } else if (start > end) {
+          start -= 52;
+          end -= 52;
         }
+
         switch (stage) {
           case "GM":
             if (index >= start && index <= end) return (backgroundColor = GM);
@@ -334,9 +351,7 @@ export default function CustomChart() {
               return (backgroundColor = TPnGR);
             break;
           case "GRnH":
-            if (index >= start && index <= end) {
-              return (backgroundColor = GRnH);
-            }
+            if (index >= start && index <= end) return (backgroundColor = GRnH);
             break;
           case "TA":
             if (index >= start && index <= end) return (backgroundColor = TA);
@@ -354,10 +369,13 @@ export default function CustomChart() {
           if (data) {
             for (let stage of data) {
               let bg = backgroundColor;
-              backgroundColor = getBGColor(index + 1, stage, bg);
+              backgroundColor = getBGColor(index + 1, stage);
               if (
-                (bg !== "#fff" || bg !== "#d9e1f2") &&
-                (backgroundColor === "#fff" || backgroundColor === "#d9e1f2")
+                (bg === _.get(stageColors, "GM") ||
+                  bg === _.get(stageColors, "TPnGR") ||
+                  bg === _.get(stageColors, "GRnH") ||
+                  bg === _.get(stageColors, "TA")) &&
+                backgroundColor !== bg
               ) {
                 backgroundColor = bg;
               }
@@ -370,6 +388,11 @@ export default function CustomChart() {
                 backgroundColor,
               }}
               key={index}
+              onClick={() => {
+                setSectionIntervals({ inter: 5, intra: 10 });
+                // setSectionIntervals({ inter: 5, intra: 18 });
+                // setSectionIntervals({ inter: 20, intra: 29 });
+              }}
             >
               {count && week + 1}
             </div>
@@ -396,7 +419,7 @@ export default function CustomChart() {
 
   return (
     <div style={{ padding: 16, fontFamily: "sans-serif" }}>
-      <YearInput />
+      {/* <YearInput /> */}
       <div
         style={{
           padding: "10px 0",
