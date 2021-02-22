@@ -319,8 +319,10 @@ export default function CustomChart() {
         const { startDate, endDate } = dates;
         let start = moment(startDate).weeks();
         let end = moment(endDate).weeks();
+
         if (moment(startDate).year() > currentYear) {
           start += 52;
+          end += 52;
         } else if (
           moment(startDate).year() < currentYear &&
           moment(endDate).year() === currentYear
@@ -335,11 +337,23 @@ export default function CustomChart() {
           } else {
             end -= 52;
           }
-        } else if (moment(startDate).year() < currentYear) {
-          end -= 52;
-        } else if (start > end) {
+        } else if (
+          moment(startDate).year() < currentYear &&
+          moment(endDate).year() < currentYear
+        ) {
           start -= 52;
           end -= 52;
+        } else if (start > end) {
+          end += 52;
+        } else if (
+          start < end &&
+          moment(startDate).year() !== moment(endDate).year()
+        ) {
+          if (moment(startDate).year() === currentYear) {
+            end += 52;
+          } else if (moment(endDate).year() === currentYear) {
+            start -= 52;
+          }
         }
 
         switch (stage) {
@@ -369,15 +383,10 @@ export default function CustomChart() {
           if (data) {
             for (let stage of data) {
               let bg = backgroundColor;
-              backgroundColor = getBGColor(index + 1, stage);
-              if (
-                (bg === _.get(stageColors, "GM") ||
-                  bg === _.get(stageColors, "TPnGR") ||
-                  bg === _.get(stageColors, "GRnH") ||
-                  bg === _.get(stageColors, "TA")) &&
-                backgroundColor !== bg
-              ) {
-                backgroundColor = bg;
+              let color = getBGColor(index + 1, stage);
+              if ((color !== "#fff" || color !== "#d921f2") && bg !== color) {
+                backgroundColor = color;
+                break;
               }
             }
           }
@@ -389,9 +398,33 @@ export default function CustomChart() {
               }}
               key={index}
               onClick={() => {
-                setSectionIntervals({ inter: 5, intra: 10 });
+                // setSectionIntervals({ inter: 5, intra: 10 });
                 // setSectionIntervals({ inter: 5, intra: 18 });
                 // setSectionIntervals({ inter: 20, intra: 29 });
+                for (let test of data) {
+                  console.log("GM", moment(test.GM.startDate).year());
+                  console.log(
+                    "GM",
+                    moment(test.GM.startDate).weeks(),
+                    moment(test.GM.endDate).weeks()
+                  );
+                  console.log(
+                    "TPnGR",
+                    moment(test.TPnGR.startDate).weeks(),
+                    moment(test.TPnGR.endDate).weeks()
+                  );
+                  console.log(
+                    "GRnH",
+                    moment(test.GRnH.startDate).weeks(),
+                    moment(test.GRnH.endDate).weeks()
+                  );
+                  console.log(
+                    "TA",
+                    moment(test.TA.startDate).weeks(),
+                    moment(test.TA.endDate).weeks()
+                  );
+                  console.log("TA", moment(test.TA.endDate).year());
+                }
               }}
             >
               {count && week + 1}
