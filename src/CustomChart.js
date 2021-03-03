@@ -13,7 +13,9 @@ export default function CustomChart() {
     GRnH: 10,
     TA: 2,
     total: 22,
-    type: "w",
+    // w for Weeks || d for Days
+    // type: "w",
+    type: "d",
   });
 
   const [sectionDetails] = useState({
@@ -101,8 +103,14 @@ export default function CustomChart() {
             )
           );
           for (let i = 0; i < numberOfYears * 3; i++) {
-            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(2, _.get(stageDuration, "type", "w"));
-            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(2, _.get(stageDuration, "type", "w"));
+            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(
+              2,
+              _.get(stageDuration, "type", "w")
+            );
+            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(
+              2,
+              _.get(stageDuration, "type", "w")
+            );
             let firstRow = calculateStageWeeks(init1);
             let secRow = calculateStageWeeks(init2);
             if (
@@ -133,8 +141,14 @@ export default function CustomChart() {
             )
           );
           for (let i = 0; i < numberOfYears * 3; i++) {
-            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(2, _.get(stageDuration, "type", "w"));
-            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(2, _.get(stageDuration, "type", "w"));
+            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(
+              2,
+              _.get(stageDuration, "type", "w")
+            );
+            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(
+              2,
+              _.get(stageDuration, "type", "w")
+            );
             let firstRow = calculateStageWeeks(init1);
             let secRow = calculateStageWeeks(init2);
             if (
@@ -315,7 +329,12 @@ export default function CustomChart() {
       boxShadow: "0 0 0 1px black",
       padding: 2,
       fontSize: 12,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
     };
+
+    let day = 0;
     const getBGColor = (index, stages) => {
       const { GM, TPnGR, GRnH, TA } = stageColors;
       let backgroundColor = `#fff`;
@@ -369,7 +388,7 @@ export default function CustomChart() {
       <div style={{ ...flexRow }}>
         {_.times(numberOfWeeks, Number).map((week, index) => {
           let backgroundColor = count ? "#d9e1f2" : "#fff";
-          if (data) {
+          if (data && _.get(stageDuration, "type", "w") === "w") {
             for (let stage of data) {
               let bg = backgroundColor;
               let color = getBGColor(index + 1, stage);
@@ -387,13 +406,35 @@ export default function CustomChart() {
               }}
               key={index}
               onClick={() => {
-                // setSectionIntervals({ inter: 5, intra: 10 });
                 setSectionIntervals({ inter: 5, intra: 18 });
-                // setSectionIntervals({ inter: 20, intra: 29 });
-                // setSectionIntervals({ inter: 10, intra: 19 });
               }}
             >
               {count && week + 1}
+              {_.get(stageDuration, "type", "w") === "d" &&
+                _.times(7, Number).map((index) => {
+                  day += 1;
+                  if (data) {
+                    for (let stage of data) {
+                      let bg = backgroundColor;
+                      let color = getBGColor(day, stage);
+                      if (
+                        (color !== "#fff" || color !== "#d921f2") &&
+                        bg !== color
+                      ) {
+                        backgroundColor = color;
+                        break;
+                      }
+                    }
+                  }
+                  return (
+                    <div
+                      style={{ backgroundColor, width: size / 7, height: size }}
+                      data-day={day}
+                      key={index}
+                      onClick={() => console.log(day)}
+                    ></div>
+                  );
+                })}
             </div>
           );
         })}
