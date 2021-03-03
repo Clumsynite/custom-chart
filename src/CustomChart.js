@@ -13,6 +13,7 @@ export default function CustomChart() {
     GRnH: 10,
     TA: 2,
     total: 22,
+    type: "w",
   });
 
   const [sectionDetails] = useState({
@@ -37,35 +38,38 @@ export default function CustomChart() {
   const [size, setSize] = useState(22);
 
   const [sectionIntervals, setSectionIntervals] = useState({
-    inter: 5,
-    intra: 10,
+    // inter: 5,
+    // intra: 10,
+    inter: 10,
+    intra: 19,
   });
 
   const calculateStageWeeks = (startDate) => {
     let stages = {
       GM: { startDate },
     };
-    let GMendDate = moment(startDate).add(_.get(stageDuration, "GM") - 1, "w");
+    const type = _.get(stageDuration, "type", "w");
+    let GMendDate = moment(startDate).add(_.get(stageDuration, "GM") - 1, type);
     _.set(stages, "GM.endDate", GMendDate);
-    _.set(stages, "TPnGR.startDate", moment(GMendDate).add(1, "w"));
+    _.set(stages, "TPnGR.startDate", moment(GMendDate).add(1, type));
     let TPnGRendDate = moment(_.get(stages, "TPnGR.startDate")).add(
       _.get(stageDuration, "TPnGR") - 1,
-      "w"
+      type
     );
     _.set(stages, "TPnGR.endDate", TPnGRendDate);
-    _.set(stages, "GRnH.startDate", moment(TPnGRendDate).add(1, "w"));
+    _.set(stages, "GRnH.startDate", moment(TPnGRendDate).add(1, type));
     let GRnHendDate = moment(_.get(stages, "GRnH.startDate")).add(
       _.get(stageDuration, "GRnH") - 1,
-      "w"
+      type
     );
     _.set(stages, "GRnH.endDate", GRnHendDate);
-    _.set(stages, "TA.startDate", moment(GRnHendDate).add(1, "w"));
+    _.set(stages, "TA.startDate", moment(GRnHendDate).add(1, type));
     _.set(
       stages,
       "TA.endDate",
       moment(_.get(stages, "TA.startDate")).add(
         _.get(stageDuration, "TA") - 1,
-        "w"
+        type
       )
     );
     return stages;
@@ -92,13 +96,13 @@ export default function CustomChart() {
             calculateStageWeeks(
               moment(_.get(sectionDetails, "GM.startDate")).add(
                 _.get(sectionIntervals, "intra"),
-                "w"
+                _.get(stageDuration, "type", "w")
               )
             )
           );
           for (let i = 0; i < numberOfYears * 3; i++) {
-            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(2, "w");
-            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(2, "w");
+            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(2, _.get(stageDuration, "type", "w"));
+            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(2, _.get(stageDuration, "type", "w"));
             let firstRow = calculateStageWeeks(init1);
             let secRow = calculateStageWeeks(init2);
             if (
@@ -116,7 +120,7 @@ export default function CustomChart() {
             calculateStageWeeks(
               moment(_.get(sectionDetails, "GM.startDate")).add(
                 cycleId * _.get(sectionIntervals, "inter"),
-                "w"
+                _.get(stageDuration, "type", "w")
               )
             )
           );
@@ -124,13 +128,13 @@ export default function CustomChart() {
             calculateStageWeeks(
               moment(_.get(sec1[0], "GM.startDate")).add(
                 _.get(sectionIntervals, "intra"),
-                "w"
+                _.get(stageDuration, "type", "w")
               )
             )
           );
           for (let i = 0; i < numberOfYears * 3; i++) {
-            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(2, "w");
-            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(2, "w");
+            let init1 = moment(_.get(sec2[i], "TA.endDate")).subtract(2, _.get(stageDuration, "type", "w"));
+            let init2 = moment(_.get(sec1[i], "TA.endDate")).subtract(2, _.get(stageDuration, "type", "w"));
             let firstRow = calculateStageWeeks(init1);
             let secRow = calculateStageWeeks(init2);
             if (
@@ -338,7 +342,7 @@ export default function CustomChart() {
           }
         } else if (moment(startDate).year() < currentYear) {
           end -= 52;
-          start -= 52
+          start -= 52;
         }
 
         switch (stage) {
